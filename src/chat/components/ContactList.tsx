@@ -15,13 +15,13 @@ const ContactList = () => {
               </div>
               G5 Customer
             </Button>
-            <NavLink to={'/chat/1'} className="w-full flex items-center">
+            <NavLink to={'/chat/1'} className="w-full flex items-center mt-3">
               <div className="h-6 w-6 rounded-full bg-green-500 mr-2 flex-shrink-0 flex items-center justify-center text-white text-xs">
                 JD
               </div>
               John Doe
             </NavLink>
-            <NavLink to={'/chat/2'} className="w-full flex items-center">
+            <NavLink to={'/chat/2'} className="w-full flex items-center mt-3">
               <div className="h-6 w-6 rounded-full bg-purple-500 mr-2 flex-shrink-0 flex items-center justify-center text-white text-xs">
                 AS
               </div>
