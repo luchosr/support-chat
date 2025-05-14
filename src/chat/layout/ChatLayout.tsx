@@ -5,6 +5,7 @@ import ContactList from '../components/ContactList';
 import { NoContactSelected } from '../components/NoContactSelected';
 import ContactInfo from '../components/ContactInfo';
 import { ContactInfoSkeleton } from '../components/ContactInfoSkeleton';
+import ContactDetails from '../components/ContactDetails';
 
 export default function ChatLayout() {
   return (
@@ -44,9 +45,10 @@ export default function ChatLayout() {
           <div className="h-14 border-b px-4 flex items-center">
             <h2 className="font-medium">Contact details</h2>
           </div>
+          <ContactDetails />
           {/* <ContactInfo /> */}
           {/* <NoContactSelected /> */}
-          <ContactInfoSkeleton />
+          {/* <ContactInfoSkeleton /> */}
         </div>
       </div>
     </div>
