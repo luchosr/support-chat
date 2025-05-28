@@ -7,6 +7,7 @@ import { RegisterPage } from './auth/pages/RegisterPage';
 // import ChatPage from './chat/layout/pages/ChatPage';
 
 import { sleep } from './lib/sleep';
+import { PrivateRoute } from './auth/components/PrivateRoute';
 
 const ChatPage = lazy(() => {
   return import('./chat/pages/ChatPage');
@@ -45,7 +46,9 @@ export default function AppRouter() {
                 </div>
               }
             >
-              <ChatLayout />
+              <PrivateRoute isAuthenticated={true}>
+                <ChatLayout />
+              </PrivateRoute>
             </Suspense>
           }
         >
