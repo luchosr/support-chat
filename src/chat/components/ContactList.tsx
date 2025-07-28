@@ -6,7 +6,6 @@ import { NavLink, useParams } from 'react-router';
 
 const ContactList = () => {
   const { clientId } = useParams();
-  console.log('🚀 ~ ContactList ~ clientId:', clientId);
 
   const { data: clients, isLoading } = useQuery({
     queryKey: ['clients'],

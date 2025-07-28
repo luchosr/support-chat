@@ -1,52 +1,70 @@
-import { lazy, Suspense } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
+import { PrivateRoute } from './auth/components/PrivateRoute';
+
 import { AuthLayout } from './auth/layout/AuthLayout';
 import { LoginPage } from './auth/pages/LoginPage';
 import { RegisterPage } from './auth/pages/RegisterPage';
-// import ChatLayout from './chat/layout/ChatLayout';
-// import ChatPage from './chat/layout/pages/ChatPage';
 
 import { sleep } from './lib/sleep';
-import { PrivateRoute } from './auth/components/PrivateRoute';
+import { useQuery } from '@tanstack/react-query';
+import { checkAuth } from './fake/fake-data';
 
-const ChatPage = lazy(() => {
-  return import('./chat/pages/ChatPage');
-});
-
-const NoChatSelectedPage = lazy(() => {
-  return import('./chat/pages/NoChatSelectedPage');
-});
-
+// import ChatLayout from './chat/layout/ChatLayout';
+// import ChatPage from './chat/pages/ChatPage';
 const ChatLayout = lazy(async () => {
   await sleep(1500);
   return import('./chat/layout/ChatLayout');
 });
+const ChatPage = lazy(async () => import('./chat/pages/ChatPage'));
+const NoChatSelectedPage = lazy(
+  async () => import('./chat/pages/NoChatSelectedPage')
+);
 
-export default function AppRouter() {
+export const AppRouter = () => {
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      return checkAuth(token);
+    },
+    retry: 0,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<AuthLayout />}>
           <Route index element={<LoginPage />} />
           <Route path="/auth/register" element={<RegisterPage />} />
+          {/* <Route path="login" element={<Login />} /> */}
+          {/* <Route path="/auth" element={<Navigate to="/auth/login" />} /> */}
         </Route>
-        <Route path="/" element={<Navigate to="/auth" />} />
+
+        {/* /chat */}
         <Route
           path="/chat"
           element={
             <Suspense
               fallback={
-                <div className="flex justify-center items-center h-screen">
-                  <div
-                    className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-primary"
-                    role="status"
-                  >
-                    <span className="sr-only">Loading...</span>
-                  </div>
+                <div className="flex h-screen w-full items-center justify-center bg-background">
+                  <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                 </div>
               }
             >
-              <PrivateRoute isAuthenticated={true}>
+              <PrivateRoute isAuthenticated={!!user}>
                 <ChatLayout />
               </PrivateRoute>
             </Suspense>
@@ -56,8 +74,9 @@ export default function AppRouter() {
           <Route path="/chat/:clientId" element={<ChatPage />} />
         </Route>
 
+        <Route path="/" element={<Navigate to="/auth" />} />
         <Route path="*" element={<Navigate to="/auth" />} />
       </Routes>
     </BrowserRouter>
   );
-}
+};

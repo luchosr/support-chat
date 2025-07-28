@@ -1,13 +1,31 @@
+import { Link, Outlet, useNavigate } from 'react-router';
+import { LogOut, X } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { Button } from '@/components/ui/button';
-import { Link, Outlet } from 'react-router';
-import { X } from 'lucide-react';
+
+import { checkAuth } from '@/fake/fake-data';
 import ContactList from '../components/ContactList';
-import { NoContactSelected } from '../components/NoContactSelected';
-import ContactInfo from '../components/ContactInfo';
-import { ContactInfoSkeleton } from '../components/ContactInfoSkeleton';
 import ContactDetails from '../components/ContactDetails';
 
 export default function ChatLayout() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const onLogout = () => {
+    localStorage.removeItem('token');
+    queryClient.invalidateQueries({ queryKey: ['user'] });
+    navigate('/auth', { replace: true });
+  };
+
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => {
+      const token = localStorage.getItem('token');
+      return checkAuth(token ?? '');
+    },
+  });
+
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
@@ -16,12 +34,25 @@ export default function ChatLayout() {
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 rounded-full bg-primary" />
             <Link to="/chat">
-              <span className="font-semibold">NexTalk</span>
+              <span className="font-semibold">{user?.name ?? '...'}</span>
             </Link>
           </div>
         </div>
+        <ContactList />
+
+        <div className="p-4 border-t">
+          <Button
+            onClick={onLogout}
+            variant="ghost"
+            size="sm"
+            className="w-full cursor-pointer"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
+        </div>
       </div>
-      <ContactList />
+
       {/* Main Content */}
       <div className="flex-1 flex">
         <div className="flex-1 flex flex-col">
@@ -45,6 +76,7 @@ export default function ChatLayout() {
           <div className="h-14 border-b px-4 flex items-center">
             <h2 className="font-medium">Contact details</h2>
           </div>
+
           <ContactDetails />
           {/* <ContactInfo /> */}
           {/* <NoContactSelected /> */}
